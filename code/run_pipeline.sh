@@ -33,7 +33,6 @@ Required inputs to run:
 # ==========================================================================================
 
 module load samtools
-#module load bowtie2
 module load bwa
 module load trimmomatic
 module load fastqc
