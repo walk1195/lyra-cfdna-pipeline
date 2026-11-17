@@ -63,7 +63,16 @@ counts_mat <- readRDS(file=glue::glue('{dataDir}Results/bin_counts/counts_mat_no
 cpm_mat = t(t(counts_mat) / colSums(counts_mat)) * 1e6 # add scaling factor
 # Log-transform
 log_mat = log2(cpm_mat + 1)
-  
+
+
+# Mean-center
+center_colmeans <- function(x) {
+  xcenter = colMeans(x)
+  x - rep(xcenter, rep.int(nrow(x), ncol(x)))}
+
+cov_centered <- center_colmeans(log_mat)
+
+
 # Convert to bedGraph format (chr, start, end, value)
 cov_centered <- cov_centered %>% 
   as.data.frame() %>%
@@ -74,13 +83,6 @@ cov_centered <- cov_centered %>%
     sep = ":",
     convert = TRUE)
 
-# Mean-center
-center_colmeans <- function(x) {
-  xcenter = colMeans(x)
-  x - rep(xcenter, rep.int(nrow(x), ncol(x)))}
-
-cov_centered <- center_colmeans(log_mat)
-
 # Fix chr col name
 names(cov_centered)[names(cov_centered) == 'chr'] <- 'chromosome'
 
@@ -89,7 +91,18 @@ names(cov_centered)[names(cov_centered) == 'chr'] <- 'chromosome'
 
 ### We may need to do some more data formatting, but will come back to it if needed
 
+plotTracks(itrack)
 
+
+data(cpgIslands)
+chr <- as.character(unique(seqnames(cpgIslands)))
+gen <- genome(cpgIslands)
+atrack <- AnnotationTrack(cpgIslands, name = "CpG")
+plotTracks(atrack)
+gtrack <- GenomeAxisTrack()
+plotTracks(list(gtrack, atrack))
+itrack <- IdeogramTrack(genome = gen, chromosome = chr)
+plotTracks(list(itrack, gtrack, atrack))
 
 ################################################################################
 # Gviz - inspect individual gene / chromosome coverage
@@ -98,10 +111,15 @@ names(cov_centered)[names(cov_centered) == 'chr'] <- 'chromosome'
 ############## Build DataTrack objects ##############
 
 # Plotting all 3 on top of each other
-dTrack.1 <- DataTrack(range = cov_centered, genome = 'canFam4', chromosome = 'chr26', name='Coverage', col=cohort_cols)
+dTrack.1 <- DataTrack(range = cov_centered, genome = 'canFam4', chromosome = 'chr8', name='Coverage', col=cohort_cols)
 
-plotTracks(d.Track1, col=cohort_cols, type='l', type='a', legend=T, chromosome = 'chr26',
-           groups=metadata$cohort, aggregateGroups=T, aggregation='mean', start='38118261', end='38202372')
+
+# Testing if we include an ideogram to see if entire chr is being plotted
+
+itrack <- IdeogramTrack(genome = 'canFam4', chromosome = 'chr8')
+
+plotTracks(list(dTrack.1, itrack), col=cohort_cols, type='l', type='a', legend=T, chromosome = 'chr8',
+           groups=metadata$cohort, aggregateGroups=T, aggregation='mean')
 
 
 ### Plotting individually

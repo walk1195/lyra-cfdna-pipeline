@@ -9,17 +9,15 @@ export BASE_DIR="/scratch.global/walk1195/${PROJ_ID}"
 export TMP="${BASE_DIR}/tmp"
 export OUT_DIR="${BASE_DIR}/results/"
 
+# Input data path
+export INPUT_DATA_DIR="/projects/standard/modianoj/data_delivery/umgc/2026-q3/449568-20260819_0044/Modiano_Project_145_Pool_1"
+
 # Setting sample list
 export SAMPLE_LIST="/${BASE_DIR}/inputs/samples.txt"
 
-
-# Input data path
-export CRAM_DIR="/common/surfs/modianoj/umgc/2025-q3/Modiano_Project_132/"
-
 # Input genome paths
-export GENOME_DIR="/projects/standard/modianoj/shared/walk1195/canfam4_Y_genome/bowtie2/canFam4_Y"
-export REF="/home/modianoj/shared/RIS_Analysis/scRNA_sarcoma/Resources/CanFam4_Y/CanFam4_Y_genome/fasta/genome.fa"
-
+export BWA_DIR="/projects/standard/modianoj/shared/walk1195/canfam4_Y_genome/bwa/canfam4_Y"
+export REF="/projects/standard/modianoj/shared/RIS_Analysis/scRNA_sarcoma/Resources/CanFam4_Y/CanFam4_Y_genome/fasta/genome.fa"
 
 # Configure picard
 export PICARD="java -jar ${PICARD_DIR}/picard.jar"

@@ -3,14 +3,17 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 64
+#SBATCH --job-name=lyra1_analysis
 #SBATCH --partition=msismall
 #SBATCH --time=24:00:00
 #SBATCH --mem=64g
 #SBATCH --tmp=32g
-#SBATCH --job-name=lyra_cfdna_pipeline
-#SBATCH --array=1-93%10
 #SBATCH --output=logs/%x_%A_%a.out
 #SBATCH --error=logs/%x_%A_%a.err
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=walk1195@umn.edu
+#SBATCH --account=modianoj
+#SBATCH --array=1-93%10
 
 '''
 Analysis pipeline to process LyRA cfDNA WGS samples.
@@ -30,22 +33,22 @@ Required inputs to run:
 # ==========================================================================================
 
 module load samtools
-module load bowtie2
+#module load bowtie2
+module load bwa
 module load trimmomatic
 module load fastqc
 module load picard
 module load bedtools
 module load R/4.4.0-openblas-rocky8
 
-echo $(which bowtie2)
+echo $(which bwa)
 echo $(which samtools)
 echo $(which fastqc)
 echo $(which bedtools)
 echo $(which R)
 
 # Load config
-source /config/config.sh
-
+source /config/pipeline_config.sh
 
 # Get sample ID
 export SAMPLE=$(sed "${SLURM_ARRAY_TASK_ID}q;d" ${SAMPLE_LIST})
@@ -70,6 +73,8 @@ bash pipeline/03a_mark_duplicates.sh
 bash pipeline/03b_collect_qc_metrics.sh
 
 bash pipeline/04_count_bins.sh
+
+bash 05_plot_genome_coverage.R
 
 
 echo "Finished processing ${SAMPLE}. Results can be found at ${OUT_DIR}"

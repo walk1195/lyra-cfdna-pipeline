@@ -12,4 +12,4 @@ fi
 # --- Submit job array
 echo "Submitting cfDNA analysis pipeline as SLURM job..."
 
-sbatch -p msismall lyra_cfdna_pipeline.sh
+sbatch -p msismall run_pipeline.sh
