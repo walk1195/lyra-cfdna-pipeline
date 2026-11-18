@@ -47,8 +47,8 @@ echo $(which fastqc)
 echo $(which bedtools)
 echo $(which R)
 
-PICARD="java -jar $PICARD_DIR/picard.jar"
-
+# Configure picard
+export PICARD="java -jar ${PICARD_DIR}/picard.jar"
 
 # If not a slurm job, set THREADS to 1
 export THREADS=$([ ! -z ${SLURM_CPUS_PER_TASK+x} ] && echo ${SLURM_CPUS_PER_TASK} || echo 1)

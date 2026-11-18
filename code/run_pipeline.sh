@@ -7,13 +7,10 @@
 #SBATCH --partition=msismall
 #SBATCH --time=24:00:00
 #SBATCH --mem=64g
-#SBATCH --tmp=32g
-#SBATCH --output=logs/%x_%A_%a.out
-#SBATCH --error=logs/%x_%A_%a.err
+#SBATCH --tmp=100g # 100g of tmp
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=walk1195@umn.edu
 #SBATCH --account=modianoj
-#SBATCH --array=1-93%10
 
 '''
 Analysis pipeline to process LyRA cfDNA WGS samples.
@@ -28,6 +25,8 @@ Required inputs to run:
 
 '''
 
+set -euo pipefail
+
 # ==========================================================================================
 # Set up bash env
 # ==========================================================================================
@@ -41,19 +40,21 @@ module load bedtools
 module load R/4.4.0-openblas-rocky8
 
 echo $(which bwa)
+echo $(which trimmomatic)
 echo $(which samtools)
 echo $(which fastqc)
 echo $(which bedtools)
 echo $(which R)
 
 # Load config
-source /config/pipeline_config.sh
-
-# Get sample ID
-export SAMPLE=$(sed "${SLURM_ARRAY_TASK_ID}q;d" ${SAMPLE_LIST})
+source config/pipeline_config.sh
 
 # If not a slurm job, set THREADS to 1
 export THREADS=$([ ! -z ${SLURM_CPUS_PER_TASK+x} ] && echo ${SLURM_CPUS_PER_TASK} || echo 1)
+
+# Get sample ID
+export SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "${SAMPLE_LIST}")
+echo "Processing reads for ${PROJ_ID}, ${SAMPLE}...."
 
 
 # ==========================================================================================
@@ -63,7 +64,9 @@ echo "Processing ${SAMPLE}...."
 
 bash pipeline/01a_cram_to_fastq.sh
 
-bash pipeline/01b_trim_fastq.sh
+#bash pipeline/01b_merge_fastq.sh # TODO: create if statement
+
+bash pipeline/01c_trim_fastq.sh
 
 bash pipeline/02_map.sh
 
